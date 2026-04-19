@@ -1,128 +1,128 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Percentage Checker</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scan</title>
+<style>
+  body{
+    margin:0;
+    background:black;
+    color:#00ff9c;
+    font-family:monospace;
+    overflow:hidden;
+  }
+  #screen{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    text-align:center;
+  }
+  #progressBar{
+    width:80%;
+    height:12px;
+    background:#222;
+    border-radius:10px;
+    margin-top:20px;
+    overflow:hidden;
+  }
+  #progress{
+    height:100%;
+    width:0%;
+    background:#00ff9c;
+    transition:0.2s;
+  }
+  #msg{
+    margin-top:20px;
+    font-size:14px;
+  }
+  .glitch{
+    animation:glitch 0.3s infinite;
+  }
+  @keyframes glitch{
+    0%{transform:translate(0);}
+    25%{transform:translate(-2px,2px);}
+    50%{transform:translate(2px,-2px);}
+    75%{transform:translate(-1px,1px);}
+    100%{transform:translate(0);}
+  }
+  button{
+    padding:12px 20px;
+    font-size:16px;
+    border:none;
+    border-radius:8px;
+    margin-top:20px;
+  }
+</style>
 </head>
+
 <body>
 
-<button class="toggle" onclick="toggleMode()">Mode</button>
-
-<div class="container">
-
-    <div class="top-links">
-        <span>Welcome, {{ username }}</span>
-        <a href="{{ url_for('leaderboard') }}">Leaderboard</a> |
-        <a href="{{ url_for('logout') }}">Logout</a>
-    </div>
-
-    <h1 class="glow">Percentage Checker</h1>
-
-    <form method="POST" action="{{ url_for('home') }}">
-        <input type="number" name="percentage" placeholder="Enter %" min="0" max="100" step="0.01" value="{{ percentage_value }}" required>
-        <button type="submit">Check</button>
-    </form>
-
-    {% if result %}
-    <div id="popup" class="popup show {{ color }}" data-tone="{{ color }}">
-        {{ result }}
-    </div>
-    {% endif %}
-
-    {% if error %}
-    <div id="popup" class="popup show {{ color }}" data-tone="error">
-        {{ error }}
-    </div>
-    {% endif %}
-
-    {% if developer_unlocked %}
-    <div class="dev-panel">
-        <h2>Developer Panel</h2>
-        <p>Developer tools are unlocked for this session.</p>
-        <div class="dev-actions">
-            <a class="dev-button" href="{{ url_for('export') }}">Export Data</a>
-            <a class="dev-button danger" href="{{ url_for('wipe', key='ian123') }}" onclick="return confirm('Clear the full leaderboard? This cannot be undone.');">Clear Leaderboard</a>
-        </div>
-    </div>
-    {% else %}
-    <div class="dev-panel locked">
-        <h2>Developer Panel</h2>
-        <p>Enter the developer password to unlock export tools.</p>
-        <form method="POST" action="{{ url_for('developer_login') }}" class="dev-unlock-form">
-            <input type="password" name="developer_password" placeholder="Developer password" required>
-            <button type="submit">Unlock</button>
-        </form>
-        {% if developer_error %}
-        <div class="popup show red">{{ developer_error }}</div>
-        {% endif %}
-    </div>
-    {% endif %}
-
+<div id="screen">
+  <h2>🔍 Initializing Scan...</h2>
+  <div id="progressBar"><div id="progress"></div></div>
+  <div id="msg">Starting...</div>
+  <button onclick="start()">Run Scan 😏</button>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<audio id="beep" src="https://www.soundjay.com/buttons/beep-07.mp3"></audio>
 
 <script>
-function toggleMode() {
-    document.body.classList.toggle("light");
+function start(){
+  let progress = document.getElementById("progress");
+  let msg = document.getElementById("msg");
+  let beep = document.getElementById("beep");
+
+  let steps = [
+    "Connecting to device...",
+    "Bypassing security...",
+    "Accessing photos...",
+    "Uploading data...",
+    "Finalizing..."
+  ];
+
+  let i = 0;
+  let percent = 0;
+
+  // vibration (mobile)
+  if(navigator.vibrate){
+    navigator.vibrate([200,100,200]);
+  }
+
+  let interval = setInterval(()=>{
+    percent += Math.random()*15;
+    if(percent > 100) percent = 100;
+
+    progress.style.width = percent + "%";
+
+    msg.innerText = steps[i] || "Processing...";
+    i++;
+
+    beep.play();
+
+    // glitch effect
+    document.body.classList.add("glitch");
+    setTimeout(()=>document.body.classList.remove("glitch"), 200);
+
+    if(percent >= 100){
+      clearInterval(interval);
+
+      setTimeout(()=>{
+        document.body.innerHTML = `
+          <div style="display:flex;justify-content:center;align-items:center;height:100vh;text-align:center;">
+            <div>
+              <h1>😂 GOT YOU!</h1>
+              <p>No data was accessed. Just a prank 😎</p>
+              <button onclick="location.reload()">Again?</button>
+            </div>
+          </div>
+        `;
+      }, 1000);
+    }
+
+  }, 800);
 }
-
-function playTone(kind) {
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContextClass) {
-        return;
-    }
-
-    const context = new AudioContextClass();
-    const oscillator = context.createOscillator();
-    const gainNode = context.createGain();
-
-    const toneMap = {
-        red: [220, 0.16],
-        error: [220, 0.16],
-        yellow: [440, 0.18],
-        green: [660, 0.22],
-        gold: [880, 0.3]
-    };
-
-    const selected = toneMap[kind] || [330, 0.15];
-
-    oscillator.type = kind === "gold" ? "triangle" : "sine";
-    oscillator.frequency.value = selected[0];
-    gainNode.gain.setValueAtTime(0.0001, context.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.2, context.currentTime + 0.01);
-    gainNode.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + selected[1]);
-
-    oscillator.connect(gainNode);
-    gainNode.connect(context.destination);
-    oscillator.start();
-    oscillator.stop(context.currentTime + selected[1]);
-
-    oscillator.onended = () => context.close();
-}
-
-window.onload = function() {
-    const popup = document.getElementById("popup");
-    if (!popup) return;
-
-    const tone = popup.dataset.tone || "error";
-
-    if (popup.classList.contains("gold")) {
-        for (let i = 0; i < 5; i++) {
-            setTimeout(() => {
-                confetti({particleCount: 150, spread: 120});
-            }, i * 300);
-        }
-    }
-    else if (popup.classList.contains("green")) {
-        confetti();
-    }
-
-    document.addEventListener("click", function playOnce() {
-        playTone(tone);
-        document.removeEventListener("click", playOnce);
-    }, { once: true });
-};
 </script>
 
 </body>
