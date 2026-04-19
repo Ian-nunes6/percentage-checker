@@ -3,6 +3,7 @@ import csv
 import io
 import sqlite3
 import os
+import logging
 
 from flask import Flask, Response, redirect, render_template, request, session, url_for
 
@@ -14,6 +15,15 @@ DB_PATH = "users.db"
 DEV_PASSWORD = "Ian123"
 WIPE_KEY = "ian123"
 
+# -------------------- LOGGING --------------------
+logging.basicConfig(level=logging.INFO)
+
+@app.before_request
+def log_request_info():
+    # On platforms behind a proxy (like Render), client IP is usually in X-Forwarded-For
+    ip = request.headers.get("X-Forwarded-For", request.remote_addr)
+    ua = request.headers.get("User-Agent")
+    logging.info(f"IP: {ip} | UA: {ua} | Path: {request.path}")
 
 # -------------------- DB SETUP --------------------
 def init_db():
@@ -23,12 +33,10 @@ def init_db():
         )
         conn.commit()
 
-
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
-
 
 def login_required(view_func):
     @wraps(view_func)
@@ -36,18 +44,14 @@ def login_required(view_func):
         if "user" not in session:
             return redirect(url_for("login"))
         return view_func(*args, **kwargs)
-
     return wrapped_view
 
-
 init_db()
-
 
 # -------------------- ENTRY --------------------
 @app.route("/")
 def root():
     return redirect(url_for("login"))
-
 
 # -------------------- HOME --------------------
 @app.route("/home", methods=["GET", "POST"])
@@ -110,7 +114,6 @@ def home():
         developer_error=developer_error,
     )
 
-
 # -------------------- LOGIN --------------------
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -129,7 +132,6 @@ def login():
 
     return render_template("login.html", error=error)
 
-
 # -------------------- DEVELOPER PANEL LOCK --------------------
 @app.route("/developer-login", methods=["POST"])
 @login_required
@@ -143,13 +145,11 @@ def developer_login():
 
     return redirect(url_for("home"))
 
-
 # -------------------- LOGOUT --------------------
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect(url_for("login"))
-
 
 # -------------------- LEADERBOARD --------------------
 @app.route("/leaderboard")
@@ -167,7 +167,6 @@ def leaderboard():
         ).fetchall()
 
     return render_template("leaderboard.html", data=data)
-
 
 # -------------------- CSV EXPORT --------------------
 @app.route("/export")
@@ -193,7 +192,6 @@ def export():
         headers={"Content-Disposition": "attachment; filename=data.csv"},
     )
 
-
 # -------------------- DEV WIPE (SECRET) --------------------
 @app.route("/wipe")
 @login_required
@@ -210,7 +208,6 @@ def wipe():
         return "Database wiped."
 
     return "Access denied"
-
 
 # -------------------- RUN --------------------
 if __name__ == "__main__":
