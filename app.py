@@ -2,6 +2,7 @@ from functools import wraps
 import csv
 import io
 import sqlite3
+import os
 
 from flask import Flask, Response, redirect, render_template, request, session, url_for
 
@@ -23,14 +24,12 @@ def init_db():
         conn.commit()
 
 
-# Reuse one helper so every route opens the database the same way.
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
 
-# Keep route protection in one place so redirects stay consistent.
 def login_required(view_func):
     @wraps(view_func)
     def wrapped_view(*args, **kwargs):
@@ -47,7 +46,6 @@ init_db()
 # -------------------- ENTRY --------------------
 @app.route("/")
 def root():
-    # Always start the app from the login page.
     return redirect(url_for("login"))
 
 
@@ -216,4 +214,5 @@ def wipe():
 
 # -------------------- RUN --------------------
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
