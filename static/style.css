@@ -1,0 +1,122 @@
+body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial;
+    background: #020617;
+    color: white;
+}
+
+body.light {
+    background: #f1f5f9;
+    color: black;
+}
+
+.container {
+    text-align: center;
+    width: min(100%, 760px);
+    padding: 32px 24px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 24px;
+    box-shadow: 0 0 30px rgba(0, 255, 200, 0.12);
+}
+
+.glow {
+    color: #00ffc3;
+    text-shadow: 0 0 10px #00ffc3;
+}
+
+.top-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+input, button {
+    padding: 12px;
+    margin: 10px;
+    border-radius: 10px;
+    border: none;
+}
+
+.popup {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+/* Colors */
+.red { background: #ff4d4d; }
+.yellow { background: #ffd633; color: black; }
+.green { background: #22c55e; }
+.gold { background: gold; color: black; }
+
+a {
+    color: #00ffc3;
+    text-decoration: none;
+    margin: 10px;
+}
+
+
+/* Login box */
+.login-box {
+    background: rgba(255,255,255,0.05);
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 30px rgba(0,255,200,0.2);
+}
+
+.dev-panel {
+    margin-top: 28px;
+    padding: 20px;
+    border: 1px solid rgba(0, 255, 195, 0.22);
+    border-radius: 18px;
+    background: rgba(15, 23, 42, 0.45);
+}
+
+.dev-panel h2 {
+    margin: 0 0 8px;
+}
+
+.dev-panel p {
+    margin: 0 0 16px;
+    color: #cbd5e1;
+}
+
+.dev-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.dev-unlock-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.dev-button {
+    display: inline-block;
+    padding: 12px 18px;
+    border-radius: 10px;
+    background: #0f766e;
+    color: white;
+}
+
+.dev-button.danger {
+    background: #b91c1c;
+}
+
+.locked {
+    border-style: dashed;
+}
